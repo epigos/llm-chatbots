@@ -18,7 +18,9 @@ class Bot(BaseModel):
         sa.String(36), default="1f916"
     )  # emoji bot avatar
     welcome_message: Mapped[str | None] = mapped_column(sa.String(255))
-    context: Mapped[list["BotContext"]] = orm.relationship(back_populates="bot")
+    contexts: Mapped[list["BotContext"]] = orm.relationship(
+        back_populates="bot", cascade="all, delete"
+    )
     data_source: Mapped[str | None] = mapped_column(sa.String(100))
 
 
@@ -35,4 +37,4 @@ class BotContext(BaseModel):
     content: Mapped[str] = mapped_column(sa.String(1000))
 
     bot_id = mapped_column(sa.ForeignKey("bots.id"))
-    bot: Mapped[Bot] = orm.relationship(back_populates="context")
+    bot: Mapped[Bot] = orm.relationship(back_populates="contexts")

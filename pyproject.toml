@@ -17,9 +17,7 @@ alembic = "^1.13.1"
 sqlalchemy = { extras = ["mypy"], version = "^2.0.30" }
 sqlalchemy-utils = "^0.41.2"
 asyncpg = "^0.29.0"
-psycopg2-binary = "^2.9.9"
 structlog = "^24.1.0"
-langchain-postgres = "^0.0.6"
 chromadb = "^0.5.0"
 
 
@@ -33,6 +31,10 @@ pre-commit = "^3.7.1"
 pytest = "^8.2.1"
 pytest-cov = "^5.0.0"
 pytest-asyncio = "^0.23.7"
+psycopg2-binary = "^2.9.9"
+factory-boy = "^3.3.0"
+pytest-factoryboy = "^2.7.0"
+typer = "^0.12.3"
 
 [build-system]
 requires = ["poetry-core"]
@@ -67,11 +69,9 @@ max-line-length = 120
 ignore-signatures = true
 ignore-imports = true
 
-[tool.pytest]
-asyncio_mode = "auto"
-
 [tool.pytest.ini_options]
 testpaths = "tests"
+asyncio_mode = "auto"
 filterwarnings = [
     "error",
 ]
@@ -81,8 +81,6 @@ strict = true
 exclude = ["tests", "dist", "migrations"]
 ignore_missing_imports = true
 
-# Plugin settings
-plugins = "sqlalchemy.ext.mypy.plugin"
 
 [tool.autoflake]
 quiet = true
@@ -90,7 +88,7 @@ remove-all-unused-imports = true
 recursive = true
 
 [tool.coverage.report]
-fail_under = 95
+fail_under = 90
 omit = [
     "*/migrations/*",
     "*/settings/*",

@@ -14,11 +14,8 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import declarative_base
 
 from app import config
-
-Base = declarative_base()
 
 logger = logging.getLogger(__name__)
 
@@ -37,12 +34,17 @@ class AsyncDatabase:
         Initialize database engine
         """
         self._engine = create_async_engine(
-            cfg.database_url,
-            echo=cfg.db_echo,
-            pool_pre_ping=True,
-            future=True,
+            cfg.database_url, echo=cfg.db_echo, pool_size=10
         )
         self._sessionmaker = async_sessionmaker(autocommit=False, bind=self._engine)
+
+    def get_engine(self) -> AsyncEngine:
+        """
+        Get database engine instance
+        """
+        if not self._engine:
+            raise RuntimeError("AsyncDatabase is not initialized")
+        return self._engine
 
     async def close(self) -> None:
         """
@@ -58,29 +60,16 @@ class AsyncDatabase:
         self._sessionmaker = None
 
     @contextlib.asynccontextmanager
-    async def connect(self) -> typing.AsyncIterator[AsyncConnection]:
-        """
-        Connect to database and creates connection object
-        """
-        if self._engine is None:
-            raise RuntimeError("AsyncDatabase is not initialized")
-
-        async with self._engine.begin() as connection:
-            try:
-                yield connection
-            except Exception:
-                await connection.rollback()
-                raise
-
-    @contextlib.asynccontextmanager
-    async def session(self) -> typing.AsyncIterator[AsyncSession]:
+    async def session(
+        self, engine: AsyncConnection | None = None
+    ) -> typing.AsyncIterator[AsyncSession]:
         """
         Create database session
         """
         if self._sessionmaker is None:
             raise RuntimeError("AsyncDatabase is not initialized")
 
-        session = self._sessionmaker()
+        session = self._sessionmaker(bind=engine or self._engine)
         try:
             yield session
         except Exception:

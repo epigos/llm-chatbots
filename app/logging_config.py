@@ -76,6 +76,16 @@ def get_logging_config() -> typing.Dict[str, typing.Any]:
                 "level": "INFO",
                 "propagate": False,
             },
+            "faker.factory": {
+                "handlers": ["default"],
+                "level": "INFO",
+                "propagate": False,
+            },
+            "factory.generate": {
+                "handlers": ["default"],
+                "level": "INFO",
+                "propagate": False,
+            },
             "uvicorn.access": {
                 "handlers": ["default"],
                 "level": "INFO",

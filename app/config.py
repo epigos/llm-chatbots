@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     app_name: str = "llm-api"
     debug: bool = True
     log_level: str = "DEBUG"
-    log_format: typing.Literal["json", "console", "colored"] = "json"
+    log_format: typing.Literal["json", "console", "colored"] = "colored"
 
     db_driver: str = "postgresql+asyncpg"
     db_host: str = "localhost"

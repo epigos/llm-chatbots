@@ -3,11 +3,15 @@ import uuid
 
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql as pg
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from app.utils import utcnow
 
-from .database import Base
+
+class Base(DeclarativeBase):
+    """
+    Declarative base class for all models.
+    """
 
 
 class BaseModel(Base):
