@@ -2,6 +2,8 @@
 
 ![Backend CI](https://github.com/epigos/llm-chatbots/actions/workflows/backend-ci.yaml/badge.svg)
 
+[![codecov](https://codecov.io/gh/epigos/llm-chatbots/graph/badge.svg?token=3KU23PETYZ)](https://codecov.io/gh/epigos/llm-chatbots)
+
 Welcome to LMM ChatBots, this is just another LMM chatbots to allows you to create chatbots and interact with LLM
 models.
 

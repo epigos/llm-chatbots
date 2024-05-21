@@ -51,6 +51,9 @@ jobs:
       - name: "Lint"
         run: make lint
 
+      - name: Install pytest annotation plugin
+        run: poetry run pip install pytest-github-actions-annotate-failures
+
       - name: "Tests"
         run: make test
 
