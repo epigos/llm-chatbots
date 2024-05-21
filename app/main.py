@@ -4,10 +4,11 @@ import typing
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
 from app import db, logging_config
 from app.config import settings
+from app.exception_handlers import override_exception_handlers
+from app.middlewares import setup_middlewares
 from app.routers import include_routers
 
 logging_config.configure()
@@ -28,13 +29,8 @@ app = FastAPI(
     debug=settings.debug, lifespan=lifespan, title=settings.app_name, docs_url="/"
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+override_exception_handlers(app)
+setup_middlewares(app)
 include_routers(app)
 
 logging.basicConfig(

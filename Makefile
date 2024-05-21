@@ -52,6 +52,10 @@ downgrade:
 
 flush: downgrade upgrade
 
+## start:        start app in docker
+start:
+	docker compose up --remove-orphans -d --force-recreate
+
 #: list available make targets
 help:
 	@grep -B1 -E "^[a-zA-Z0-9_-]+\:([^\=]|$$)" Makefile \
@@ -61,4 +65,4 @@ help:
 		| column -t  -s '###' \
 		| sort
 
-.PHONY: lint format test clean hooks migrations upgrade downgrade down db build help
+.PHONY: lint format test clean hooks migrations upgrade downgrade down db build start help

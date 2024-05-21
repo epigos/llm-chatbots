@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     db_user: str = "postgres"
     db_password: str = "password"
     db_database: str = "postgres"
-    db_echo: bool = False
+    db_echo: bool = True
 
     @property
     def database_url(self) -> URL:

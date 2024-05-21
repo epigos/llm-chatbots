@@ -16,7 +16,7 @@ services:
     environment:
       - DEBUG=true
       - DB_HOST=db
-      - log_format=json
+      - log_format=colored
       - db_echo=False
       - CHROMA_HOST=chroma
     command:
@@ -37,7 +37,7 @@ services:
     volumes:
       - index_data:/chroma/.chroma/index
     ports:
-      - "8000:8080"
+      - "8080:8000"
 
 networks:
   default:
