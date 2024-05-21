@@ -1,8 +1,9 @@
-# LLM Chats
+# LLM ChatBots
 
 ![Backend CI](https://github.com/epigos/llm-chatbots/actions/workflows/backend-ci.yaml/badge.svg)
 
-Welcome to LMM Chats, this is just another LMM chatbots to allows you to create chatbots and interact with LLM models.
+Welcome to LMM ChatBots, this is just another LMM chatbots to allows you to create chatbots and interact with LLM
+models.
 
 # 🚀Features
 
