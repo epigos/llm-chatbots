@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - chroma
+    environment:
+      - DEBUG=true
+      - DB_HOST=db
+      - CHROMA_HOST=chroma
+    command:
+      [ 'dev', '8000' ]
+
+  db:
+    image: postgres:latest
+    restart: always
+    volumes:
+      - db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+
+  chroma:
+    image: ghcr.io/chroma-core/chroma:latest
+    volumes:
+      - index_data:/chroma/.chroma/index
+    ports:
+      - "8000:8080"
+
+networks:
+  default:
+    name: llm
+
+volumes:
+  db:
+    driver: local
+  index_data:
+    driver: local
