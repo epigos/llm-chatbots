@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, status
 
 from app import deps, models
@@ -41,3 +43,24 @@ async def list_bots(bot_repo: deps.BotRepository) -> list[schemas.BotOutput]:
     """
     bots = await bot_repo.get_all()
     return [schemas.BotOutput.model_validate(bot) for bot in bots]
+
+
+@router.post(
+    "/{bot_id}/chat/",
+)
+async def chat_bot(
+    bot_id: uuid.UUID,
+    data: schemas.ChatMessage,
+    bot_repo: deps.BotRepository,
+    chatbot_agent: deps.ChatBotAgent,
+) -> schemas.ChatOutput:
+    """
+    Endpoint to fetch lists of bots
+    """
+    bot = await bot_repo.get_by_id(bot_id)
+    chatbot_agent.initialize(bot)
+
+    content = await chatbot_agent.invoke(
+        session_id=data.session_id, message=data.message
+    )
+    return schemas.ChatOutput(content=content)

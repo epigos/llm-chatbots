@@ -48,7 +48,7 @@ def override_exception_handlers(app: fastapi.FastAPI) -> None:
             content=jsonable_encoder(
                 {
                     "detail": exc.errors(),
-                    "message": exc.body,
+                    "message": "Request validation errors",
                     "status_code": status_code,
                 }
             ),

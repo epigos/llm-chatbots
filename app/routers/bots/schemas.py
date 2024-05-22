@@ -41,3 +41,20 @@ class BotOutput(common.BaseModelOutput):
     welcome_message: str | None = None
     data_source: str | None = None
     contexts: list[BotContextOutput] = pydantic.Field(default_factory=list)
+
+
+class ChatMessage(common.BaseInputSchema):
+    """
+    Schema for chat message
+    """
+
+    message: str = pydantic.Field(max_length=1000)
+    session_id: str
+
+
+class ChatOutput(common.BaseOutputSchema):
+    """
+    Schema for chatbot message ouput
+    """
+
+    content: str

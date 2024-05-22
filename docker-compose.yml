@@ -12,13 +12,15 @@ services:
       - "8000:8000"
     depends_on:
       - db
-      - chroma
+      - qdrant
+      - redis
     environment:
       - DEBUG=true
       - DB_HOST=db
       - log_format=colored
       - db_echo=False
-      - CHROMA_HOST=chroma
+      - QDRANT_URL=qdrant
+      - REDIS_URL=redis://redis:6379/0
     command:
       [ 'dev', '8000' ]
 
@@ -32,12 +34,19 @@ services:
     environment:
       - POSTGRES_PASSWORD=password
 
-  chroma:
-    image: ghcr.io/chroma-core/chroma:latest
-    volumes:
-      - index_data:/chroma/.chroma/index
+  qdrant:
+    image: qdrant/qdrant:latest
     ports:
-      - "8080:8000"
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  redis:
+    image: redis/redis-stack:latest
+    ports:
+      - "6379:6379"
+      - "8001:8001"
 
 networks:
   default:
@@ -46,5 +55,5 @@ networks:
 volumes:
   db:
     driver: local
-  index_data:
+  qdrant_data:
     driver: local

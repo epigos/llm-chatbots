@@ -1,6 +1,7 @@
 import typing
 from contextlib import ExitStack
 
+import fastapi
 import pytest
 import pytest_asyncio
 import sqlalchemy as sa
@@ -16,7 +17,7 @@ from tests import factories
 
 
 @pytest.fixture
-def app():
+def app() -> typing.Generator[fastapi.FastAPI, None, None]:
     with ExitStack():
         yield actual_app
 
@@ -74,6 +75,26 @@ async def session_override(app, db_session):
         yield db_session
 
     app.dependency_overrides[deps.get_db_session] = get_db_session_override
+
+
+def override_dependency(name):
+    """
+    Default dependency override for to ensure test isolation
+    for dependencies making external API calls.
+    """
+
+    def overridden_dependency():
+        raise RuntimeError(f"You must override a dependency: {name}")
+
+    return overridden_dependency
+
+
+@pytest.fixture(autouse=True, scope="session")
+def override_dependencies() -> None:
+    """Override external deps to ensure test isolation of dependencies."""
+    actual_app.dependency_overrides[deps.get_chat_bot] = override_dependency(
+        "get_chat_bot"
+    )
 
 
 register(factories.BotFactory)
