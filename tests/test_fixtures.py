@@ -13,7 +13,10 @@ async def test_can_load_fixtures(db_session: AsyncSession) -> None:
     with open(fixtures.FIXTURES_DIR / "bots.json", encoding="utf-8") as fp:
         bots_data = json.load(fp)
 
-    with patch.object(deps, "get_vector_store") as mock_get_vector_store:
+    with (
+        patch.object(deps, "get_embeddings"),
+        patch.object(deps, "get_vector_store") as mock_get_vector_store,
+    ):
         mock_get_vector_store.return_value = mock.MagicMock(spec=ports.VectorStore)
         await fixtures.main()
 
