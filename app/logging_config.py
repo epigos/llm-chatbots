@@ -97,6 +97,16 @@ def get_logging_config() -> typing.Dict[str, typing.Any]:
                 "level": "WARNING",
                 "propagate": False,
             },
+            "httpx": {
+                "handlers": ["default"],
+                "level": "INFO",
+                "propagate": False,
+            },
+            "httpcore.http11": {
+                "handlers": ["default"],
+                "level": "INFO",
+                "propagate": False,
+            },
         },
     }
 

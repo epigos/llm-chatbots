@@ -1,12 +1,13 @@
 import contextlib
 import uuid
+from unittest import mock
 
 import pytest
 from fastapi import status
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import deps, models, typings
+from app import deps, models, ports, typings
 from app.adapters import sqlalchemy, stubs
 from tests import context
 
@@ -90,11 +91,16 @@ async def test_can_chat_with_bot(
 
     payload = {"message": message, "session_id": str(uuid.uuid4())}
 
-    stub_chatbot = stubs.ChatBotAgent(results=expected)
+    stub_chatbot = stubs.ChatBotAgent(bot_db, results=expected)
+    vector_store = mock.MagicMock(spec=ports.VectorStore)
 
+    agent_repo = stubs.BotAgentRepository(stub_chatbot)
     async with contextlib.AsyncExitStack() as stack:
         stack.enter_context(
-            context.use_dependency(deps.get_chat_bot, lambda: stub_chatbot)
+            context.use_dependency(deps.get_bot_agent_repo, lambda: agent_repo)
+        )
+        stack.enter_context(
+            context.use_dependency(deps.get_vector_store, lambda: vector_store)
         )
 
         response = await client.post(f"{base_path}/{bot_db.id}/chat/", json=payload)

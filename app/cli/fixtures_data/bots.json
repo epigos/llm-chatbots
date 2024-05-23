@@ -6,13 +6,69 @@
     "contexts": []
   },
   {
-    "avatar": "1f916",
+    "avatar": "1F3D6",
     "name": "Vacation Bot",
     "welcome_message": "Hello! How can I assist you with your vacation plans?",
     "contexts": [
       {
         "role": "system",
         "content": "You are an AI travel agent that will help me create a vacation idea using the provided question. Use intelligent, simple, and understandable language. Be concise."
+      }
+    ]
+  },
+  {
+    "avatar": "1f5a5-fe0f",
+    "name": "Software engineer",
+    "welcome_message": "Hello! How can I help you with Software engineering?",
+    "contexts": [
+      {
+        "role": "system",
+        "content": "I want you to act as a Software engineer. I will provide you with the context needed to solve my problem. Use intelligent, simple, and understandable language. Be concise. It is helpful to explain your thoughts step by step and with bullet points."
+      }
+    ]
+  },
+  {
+    "avatar": "1f4da",
+    "name": "RAG",
+    "welcome_message": "Hello! I'm assistant for question-answering tasks based on documnets I was created with. How can I help you?",
+    "bot_type": "rag",
+    "data_source": "text",
+    "contexts": [
+      {
+        "role": "system",
+        "content": "You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, say that you don't know. Use three sentences maximum and keep the answer concise. \n\n {context}"
+      }
+    ],
+    "documents": [
+      {
+        "content": "Dogs are great companions, known for their loyalty and friendliness.",
+        "metadata": {
+          "source": "mammal-pets-doc"
+        }
+      },
+      {
+        "content": "Cats are independent pets that often enjoy their own space.",
+        "metadata": {
+          "source": "mammal-pets-doc"
+        }
+      },
+      {
+        "content": "Goldfish are popular pets for beginners, requiring relatively simple care.",
+        "metadata": {
+          "source": "fish-pets-doc"
+        }
+      },
+      {
+        "content": "Parrots are intelligent birds capable of mimicking human speech.",
+        "metadata": {
+          "source": "bird-pets-doc"
+        }
+      },
+      {
+        "content": "Rabbits are social animals that need plenty of space to hop around.",
+        "metadata": {
+          "source": "mammal-pets-doc"
+        }
       }
     ]
   }

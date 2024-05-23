@@ -1,3 +1,6 @@
-from .agent import ChatBotAgent
+from .agent import BotAgentRepository, ChatBotAgent
 
-__all__ = ("ChatBotAgent",)
+__all__ = (
+    "BotAgentRepository",
+    "ChatBotAgent",
+)

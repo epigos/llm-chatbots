@@ -9,7 +9,7 @@ from app import models, ports
 class ChatBotAgentContract(abc.ABC):
 
     @abc.abstractmethod
-    def chatbot(self, results: str) -> ports.ChatBotAgent:
+    def chatbot(self, bot: models.Bot, results: str) -> ports.ChatBotAgent:
         raise NotImplementedError()
 
     @pytest.mark.asyncio
@@ -18,8 +18,7 @@ class ChatBotAgentContract(abc.ABC):
         self, bot: models.Bot, message: str, response: str
     ) -> None:
         session_id = str(uuid.uuid4())
-        agent = self.chatbot(response)
-        agent.initialize(bot)
+        agent = self.chatbot(bot, results=response)
 
         result = await agent.invoke(session_id, message)
         assert result == response
@@ -32,8 +31,7 @@ class ChatBotAgentContract(abc.ABC):
         self, bot: models.Bot, message: str, response: str
     ) -> None:
         session_id = str(uuid.uuid4())
-        agent = self.chatbot(response)
-        agent.initialize(bot)
+        agent = self.chatbot(bot, results=response)
 
         chunks = response.splitlines()
 

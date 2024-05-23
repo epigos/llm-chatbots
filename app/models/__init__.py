@@ -1,3 +1,3 @@
-from .bots import Bot, BotContext
+from .bots import Bot, BotContext, BotDocument
 
-__all__ = ("Bot", "BotContext")
+__all__ = ("Bot", "BotContext", "BotDocument")

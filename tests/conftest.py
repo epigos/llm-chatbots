@@ -1,5 +1,6 @@
 import typing
 from contextlib import ExitStack
+from unittest.mock import patch
 
 import fastapi
 import pytest
@@ -7,6 +8,7 @@ import pytest_asyncio
 import sqlalchemy as sa
 import sqlalchemy_utils as sa_utils
 from httpx import ASGITransport, AsyncClient
+from langchain_openai import ChatOpenAI
 from pytest_factoryboy import register
 
 from app import db, deps
@@ -92,9 +94,23 @@ def override_dependency(name):
 @pytest.fixture(autouse=True, scope="session")
 def override_dependencies() -> None:
     """Override external deps to ensure test isolation of dependencies."""
-    actual_app.dependency_overrides[deps.get_chat_bot] = override_dependency(
-        "get_chat_bot"
+    actual_app.dependency_overrides[deps.get_bot_agent_repo] = override_dependency(
+        "get_bot_agent_repo"
+    )
+    actual_app.dependency_overrides[deps.get_embeddings] = override_dependency(
+        "get_embeddings"
+    )
+    actual_app.dependency_overrides[deps.get_vector_store] = override_dependency(
+        "get_vector_store"
     )
 
 
+@pytest.fixture(autouse=True, scope="session")
+def mock_chat_open_ai():
+    with patch.object(ChatOpenAI, "__init__") as mock_init:
+        mock_init.return_value = None
+        yield mock_init
+
+
 register(factories.BotFactory)
+register(factories.BotContextFactory)

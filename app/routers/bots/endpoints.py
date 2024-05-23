@@ -52,13 +52,14 @@ async def chat_bot(
     bot_id: uuid.UUID,
     data: schemas.ChatMessage,
     bot_repo: deps.BotRepository,
-    chatbot_agent: deps.ChatBotAgent,
+    agent_repo: deps.BotAgentRepository,
+    vector_store: deps.VectorStore,
 ) -> schemas.ChatOutput:
     """
     Endpoint to fetch lists of bots
     """
     bot = await bot_repo.get_by_id(bot_id)
-    chatbot_agent.initialize(bot)
+    chatbot_agent = agent_repo.get_agent(bot, vector_store=vector_store)
 
     content = await chatbot_agent.invoke(
         session_id=data.session_id, message=data.message

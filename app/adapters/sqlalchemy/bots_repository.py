@@ -34,7 +34,10 @@ class BotRepository(ports.BotRepository, BaseRepository):
         stmt = (
             sa.select(models.Bot)
             .where(table.c.id == pk)
-            .options(orm.selectinload(models.Bot.contexts))
+            .options(
+                orm.selectinload(models.Bot.contexts),
+                orm.selectinload(models.Bot.documents),
+            )
             .execution_options(populate_existing=True)
         )
         db_execute = await self._session.execute(stmt)
@@ -48,7 +51,10 @@ class BotRepository(ports.BotRepository, BaseRepository):
         stmt = (
             sa.select(models.Bot)
             .where(table.c.id == pk)
-            .options(orm.selectinload(models.Bot.contexts))
+            .options(
+                orm.selectinload(models.Bot.contexts),
+                orm.selectinload(models.Bot.documents),
+            )
             .with_for_update(of=table)
         )
         db_execute = await self._session.execute(stmt)

@@ -39,8 +39,14 @@ class BotOutput(common.BaseModelOutput):
     name: str
     avatar: str
     welcome_message: str | None = None
-    data_source: str | None = None
+    data_source: typings.BotDataSource | None = None
     contexts: list[BotContextOutput] = pydantic.Field(default_factory=list)
+    data_indexed: bool | None = None
+    bot_type: typings.BotType = typings.BotType.chatbot
+    bot_model: typings.BotModelTypes = typings.BotModelTypes.gpt_4o
+    temperature: int
+    top_p: int
+    max_tokens: int
 
 
 class ChatMessage(common.BaseInputSchema):

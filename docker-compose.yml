@@ -14,6 +14,7 @@ services:
       - db
       - qdrant
       - redis
+      - localstack
     environment:
       - DEBUG=true
       - DB_HOST=db
@@ -21,6 +22,9 @@ services:
       - db_echo=False
       - QDRANT_URL=qdrant
       - REDIS_URL=redis://redis:6379/0
+      - AWS_ACCESS_KEY_ID=fake
+      - AWS_SECRET_ACCESS_KEY=fake
+      - AWS_ENDPOINT_URL=http://localstack:4566
     command:
       [ 'dev', '8000' ]
 
@@ -47,6 +51,20 @@ services:
     ports:
       - "6379:6379"
       - "8001:8001"
+
+  localstack:
+    image: localstack/localstack:latest
+    environment:
+      - AWS_DEFAULT_REGION=eu-west-2
+      - AWS_ACCESS_KEY_ID=fake
+      - AWS_SECRET_ACCESS_KEY=fake
+      - SERVICES=s3
+    ports:
+      - '4566:4566'
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-/tmp/localstack}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./docker/localstack/setup.sh:/etc/localstack/init/ready.d/init-aws.sh"
 
 networks:
   default:
