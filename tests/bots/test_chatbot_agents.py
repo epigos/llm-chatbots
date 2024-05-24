@@ -30,6 +30,7 @@ class TestLangChainChatBotAgents(contracts.ChatBotAgentContract):
 
 class TestLangChainRAGAgents(contracts.ChatBotAgentContract):
     def chatbot(self, bot: models.Bot, results: str) -> ports.ChatBotAgent:
+        bot.bot_type = typings.BotType.rag
         vector_store = mock.MagicMock(spec=ports.VectorStore)
 
         agent = agents.RAGAgent(bot, vector_store=vector_store)
