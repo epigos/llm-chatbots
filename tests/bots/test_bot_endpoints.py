@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import deps, models, ports, typings
 from app.adapters import sqlalchemy, stubs
-from tests import context
+from tests import context, factories
 
 pytestmark = pytest.mark.asyncio
 
@@ -49,11 +49,9 @@ async def test_can_create_bot(client: AsyncClient, db_session: AsyncSession) -> 
 
 
 async def test_should_not_create_bot_with_existing_name(
-    client: AsyncClient, db_session: AsyncSession, bot: models.Bot
+    client: AsyncClient,
+    bot_db: models.Bot,
 ) -> None:
-    repo = sqlalchemy.BotRepository(db_session)
-    bot_db = await repo.save(bot)
-
     response = await client.post(f"{base_path}/", json={"name": bot_db.name})
 
     assert response.status_code == status.HTTP_409_CONFLICT, response.text
@@ -78,17 +76,31 @@ async def test_can_lists_bot(
     assert len(data) == len(bots)
 
 
+async def test_can_get_bot(
+    client: AsyncClient,
+    bot_db: models.Bot,
+) -> None:
+    # test not found
+    response = await client.get(f"{base_path}/{uuid.uuid4()}/")
+
+    assert response.status_code == status.HTTP_404_NOT_FOUND, response.text
+
+    # test get ok
+    response = await client.get(f"{base_path}/{bot_db.id}/")
+
+    assert response.status_code == status.HTTP_200_OK, response.text
+
+    data = response.json()
+    assert bot_db.name == data["name"]
+
+
 @pytest.mark.parametrize("message,expected", [("Hello bot", "Hi, user")])
 async def test_can_chat_with_bot(
     client: AsyncClient,
-    db_session: AsyncSession,
-    bot: models.Bot,
+    bot_db: models.Bot,
     message: str,
     expected: str,
 ) -> None:
-    repo = sqlalchemy.BotRepository(db_session)
-    bot_db = await repo.save(bot)
-
     payload = {"message": message, "session_id": str(uuid.uuid4())}
 
     stub_chatbot = stubs.ChatBotAgent(bot_db, results=expected)
@@ -109,3 +121,64 @@ async def test_can_chat_with_bot(
 
     data = response.json()
     assert data["content"] == expected
+
+
+async def test_can_create_bot_documents(
+    client: AsyncClient,
+    bot_db: models.Bot,
+    bot_document_factory: factories.BotDocumentFactory,
+) -> None:
+    docs = bot_document_factory.create_batch(5)
+    payload = [
+        {
+            "content": doc.content,
+            "filename": doc.filename,
+            "content_type": "content_type",
+            "metadata": {"test": "test"},
+        }
+        for doc in docs
+    ]
+
+    response = await client.post(f"{base_path}/{bot_db.id}/documents/", json=payload)
+
+    assert response.status_code == status.HTTP_201_CREATED, response.text
+
+    data = response.json()
+    assert len(data) == 5
+    expected_docs = [
+        {
+            "content": doc["content"],
+            "filename": doc["filename"],
+            "content_type": doc["content_type"],
+            "metadata": doc["doc_metadata"],
+        }
+        for doc in data
+    ]
+    assert payload == expected_docs
+
+
+async def test_can_index_bot(
+    client: AsyncClient,
+    bot_db: models.Bot,
+) -> None:
+    vector_store = mock.MagicMock(spec=ports.VectorStore)
+
+    async with contextlib.AsyncExitStack() as stack:
+        stack.enter_context(
+            context.use_dependency(deps.get_vector_store, lambda: vector_store)
+        )
+
+        response = await client.post(f"{base_path}/{bot_db.id}/index/", json={})
+
+    vector_store.index.assert_called_once()
+
+    assert response.status_code == status.HTTP_202_ACCEPTED, response.text
+    data = response.json()
+    assert data["completed"] is False
+
+    # test index is completed
+    response = await client.get(f"{base_path}/{bot_db.id}/")
+
+    assert response.status_code == status.HTTP_200_OK, response.text
+    data = response.json()
+    assert data["data_indexed"] is True

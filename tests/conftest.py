@@ -9,12 +9,16 @@ import sqlalchemy as sa
 import sqlalchemy_utils as sa_utils
 from httpx import ASGITransport, AsyncClient
 from langchain_openai import ChatOpenAI
+from moto import mock_aws
 from pytest_factoryboy import register
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import db, deps
+from app import db, deps, models
+from app.adapters.sqlalchemy import BotRepository
 from app.config import settings
 from app.db import Base
 from app.main import app as actual_app
+from app.utils import get_s3_client
 from tests import factories
 
 
@@ -58,7 +62,7 @@ def setup_db(request):
 
 
 @pytest_asyncio.fixture(scope="function")
-async def db_session(setup_db):
+async def db_session(setup_db) -> AsyncSession:
     db.async_db.init(settings)
 
     async with db.async_db.session() as session:
@@ -112,5 +116,21 @@ def mock_chat_open_ai():
         yield mock_init
 
 
+@pytest.fixture
+def s3_bucket() -> str:
+    with mock_aws():
+        s3 = get_s3_client()
+        s3.create_bucket(Bucket=settings.s3_uploads_bucket_name)
+        yield settings.s3_uploads_bucket_name
+
+
+@pytest_asyncio.fixture
+async def bot_db(bot: models.Bot, db_session: AsyncSession) -> models.Bot:
+    repo = BotRepository(db_session)
+    bot_db = await repo.save(bot)
+    return bot_db
+
+
 register(factories.BotFactory)
 register(factories.BotContextFactory)
+register(factories.BotDocumentFactory)

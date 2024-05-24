@@ -6,7 +6,7 @@ from langchain_openai import OpenAIEmbeddings
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import db, ports
-from app.adapters import agents, qdrant, sqlalchemy
+from app.adapters import agents, aws, qdrant, sqlalchemy
 from app.config import settings
 
 
@@ -46,8 +46,16 @@ Embeddings = typing.Annotated[embeddings.Embeddings, Depends(get_embeddings)]
 
 
 def get_vector_store(embedding: Embeddings) -> ports.VectorStore:
-    """Dependency to a new vector store"""
+    """Dependency to create a new vector store"""
     return qdrant.VectorStore(embedding=embedding)
 
 
 VectorStore = typing.Annotated[ports.VectorStore, Depends(get_vector_store)]
+
+
+def get_file_storage() -> ports.FileStorage:
+    """Dependency to get file storage instance"""
+    return aws.FileStorage(bucket_name=settings.s3_uploads_bucket_name)
+
+
+FileStorage = typing.Annotated[ports.FileStorage, Depends(get_file_storage)]

@@ -5,6 +5,7 @@ from fastapi import status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.responses import JSONResponse, Response
+from pydantic_core import ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -39,8 +40,9 @@ def override_exception_handlers(app: fastapi.FastAPI) -> None:
     """
 
     @app.exception_handler(RequestValidationError)
+    @app.exception_handler(ValidationError)
     async def validation_exception_handler(
-        _: fastapi.Request, exc: RequestValidationError
+        _: fastapi.Request, exc: RequestValidationError | ValidationError
     ) -> Response:
         status_code = status.HTTP_400_BAD_REQUEST
         return JSONResponse(

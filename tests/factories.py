@@ -18,6 +18,15 @@ class BotContextFactory(factory.Factory):
         model = models.BotContext
 
 
+class BotDocumentFactory(factory.Factory):
+    id = factory.LazyFunction(uuid.uuid4)
+    content = factory.Faker("sentence")
+    filename = factory.Faker("word")
+
+    class Meta:
+        model = models.BotDocument
+
+
 class BotFactory(factory.Factory):
     id = factory.LazyFunction(uuid.uuid4)
     name = factory.Sequence(lambda n: f"{fake.word()}-{n}")

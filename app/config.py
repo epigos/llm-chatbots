@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     db_password: str = "password"
     db_database: str = "postgres"
     db_echo: bool = True
+    # langchain
+    langchain_tracing_v2: str = "true"
+    langchain_api_key: str = ""
     # openai config
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o"
@@ -36,7 +39,7 @@ class Settings(BaseSettings):
     qdrant_collection: str = "documents"
     qdrant_recreate_collection: bool = False
     # aws
-    aws_default_region: str = "eu-west-2"
+    aws_default_region: str = "us-east-1"
     aws_access_key_id: str | None = None
     aws_secret_access_key: str | None = None
     aws_endpoint_url: str | None = None

@@ -4,6 +4,11 @@ import datetime
 import time
 import typing
 
+import boto3
+from mypy_boto3_s3.client import S3Client
+
+from app.config import settings
+
 
 def utcnow() -> datetime.datetime:
     """Generates timezone-aware UTC datetime."""
@@ -29,3 +34,17 @@ class AsyncElapsedTimer:
         self._end = time.perf_counter()
         self.elapsed = (self._end - self._start) * 1000  # Convert to milliseconds
         self.elapsed_formatted = f"{self.elapsed:.0f} ms"  # Format as integer
+
+
+def get_s3_client() -> S3Client:
+    """
+    Returns boto3 s3 client
+    """
+    client = boto3.client(
+        "s3",
+        region_name=settings.aws_default_region,
+        aws_access_key_id=settings.aws_access_key_id,
+        aws_secret_access_key=settings.aws_secret_access_key,
+        endpoint_url=settings.aws_endpoint_url,
+    )
+    return typing.cast(S3Client, client)

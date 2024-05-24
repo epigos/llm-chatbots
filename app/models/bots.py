@@ -83,7 +83,7 @@ class Bot(BaseModel):
                 content += "\n{context}"
             context_messages.append((ctx.role.value, content))
 
-        if not context_messages:
+        if not context_messages and self.bot_type == typings.BotType.rag:
             context_messages.append((typings.BotContextRole.system.value, "{context}"))
 
         return context_messages
@@ -112,5 +112,8 @@ class BotDocument(BaseModel):
 
     content: Mapped[str] = mapped_column(sa.Text())
     doc_metadata: Mapped[dict[str, typing.Any]] = mapped_column(pg.JSONB, default=dict)
+    filename: Mapped[str | None]
+    content_type: Mapped[str | None]
+
     bot_id: Mapped[uuid.UUID] = mapped_column(sa.ForeignKey("bots.id"))
     bot: Mapped[Bot] = orm.relationship(back_populates="documents")
