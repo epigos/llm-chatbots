@@ -14,7 +14,7 @@ from pytest_factoryboy import register
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import db, deps, models
-from app.adapters.sqlalchemy import BotRepository
+from app.adapters.sqlalchemy import BotRepository, UserRepository
 from app.config import settings
 from app.db import Base
 from app.main import app as actual_app
@@ -125,6 +125,31 @@ def s3_bucket() -> str:
 
 
 @pytest_asyncio.fixture
+async def user_db(user: models.User, db_session: AsyncSession) -> models.User:
+    repo = UserRepository(db_session)
+    user.set_password_hash("password")
+
+    user_obj = await repo.save(user)
+    return user_obj
+
+
+@pytest.fixture
+def auth_token(app) -> None:
+    def _get_token() -> str:
+        yield "test"
+
+    original_value = app.dependency_overrides.get(deps.get_token)
+    app.dependency_overrides[deps.get_token] = _get_token
+
+    yield
+
+    if original_value is None:
+        del app.dependency_overrides[deps.get_token]
+    else:
+        app.dependency_overrides[deps.get_token] = original_value
+
+
+@pytest_asyncio.fixture
 async def bot_db(bot: models.Bot, db_session: AsyncSession) -> models.Bot:
     repo = BotRepository(db_session)
     bot_db = await repo.save(bot)
@@ -134,3 +159,4 @@ async def bot_db(bot: models.Bot, db_session: AsyncSession) -> models.Bot:
 register(factories.BotFactory)
 register(factories.BotContextFactory)
 register(factories.BotDocumentFactory)
+register(factories.UserFactory)

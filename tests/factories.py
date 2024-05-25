@@ -40,3 +40,12 @@ class BotFactory(factory.Factory):
 
     class Meta:
         model = models.Bot
+
+
+class UserFactory(factory.Factory):
+    id = factory.LazyFunction(uuid.uuid4)
+    username = factory.Sequence(lambda n: f"email_{n}@example.com")
+    name = factory.Faker("name")
+
+    class Meta:
+        model = models.User

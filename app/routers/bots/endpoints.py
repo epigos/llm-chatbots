@@ -7,7 +7,9 @@ from fastapi import APIRouter, status
 from app import deps, models, ports
 from app.routers.bots import schemas
 
-router = APIRouter(prefix="/bots", tags=["Bots"])
+router = APIRouter(
+    prefix="/bots", tags=["Bots"], dependencies=[fastapi.Depends(deps.get_token)]
+)
 logger = logging.getLogger(__name__)
 
 

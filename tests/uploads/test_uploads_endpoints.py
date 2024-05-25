@@ -13,7 +13,9 @@ pytestmark = pytest.mark.asyncio
 path = "/uploads/"
 
 
-async def test_uploads_validation_errors(client: AsyncClient, s3_bucket) -> None:
+async def test_uploads_validation_errors(
+    client: AsyncClient, s3_bucket, auth_token
+) -> None:
     response = await client.post(path, data={})
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
@@ -28,7 +30,7 @@ async def test_uploads_validation_errors(client: AsyncClient, s3_bucket) -> None
 
 @pytest.mark.parametrize("filename", ["example.jpeg", "example.png", "example.exe"])
 async def test_upload_invalid_file_extension(
-    client: AsyncClient, bot_db: models.Bot, s3_bucket: str, filename: str
+    client: AsyncClient, bot_db: models.Bot, s3_bucket: str, filename: str, auth_token
 ) -> None:
     file_content = b"test content"
     files = {"file": (filename, file_content, "application/octet-stream")}
@@ -60,6 +62,7 @@ async def test_can_upload_files(
     s3_bucket: str,
     filename: str,
     content_type: str,
+    auth_token,
 ) -> None:
     file_content = b"test content"
     files = {"file": (filename, file_content, content_type)}

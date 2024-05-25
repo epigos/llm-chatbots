@@ -2,12 +2,15 @@ import io
 import typing
 import uuid
 
+import fastapi
 from fastapi import APIRouter, Form, UploadFile, status
 
 from app import deps
 from app.routers.uploads import schemas
 
-router = APIRouter(prefix="/uploads", tags=["Uploads"])
+router = APIRouter(
+    prefix="/uploads", tags=["Uploads"], dependencies=[fastapi.Depends(deps.get_token)]
+)
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)

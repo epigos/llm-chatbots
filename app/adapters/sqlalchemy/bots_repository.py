@@ -2,10 +2,9 @@ import typing
 import uuid
 
 import sqlalchemy as sa
-from fastapi import HTTPException
 from sqlalchemy import orm
 
-from app import models, ports
+from app import exceptions, models, ports
 
 from .base_repository import BaseRepository
 
@@ -42,7 +41,7 @@ class BotRepository(ports.BotRepository, BaseRepository):
         )
         db_execute = await self._session.execute(stmt)
         if not (instance := db_execute.scalars().unique().one_or_none()):
-            raise HTTPException(status_code=404, detail="Bot does not exist")
+            raise exceptions.DoesNotExist("Bot does not exist")
 
         return instance
 
@@ -59,6 +58,6 @@ class BotRepository(ports.BotRepository, BaseRepository):
         )
         db_execute = await self._session.execute(stmt)
         if not (instance := db_execute.scalars().unique().one_or_none()):
-            raise HTTPException(status_code=404, detail="Bot does not exist")
+            raise exceptions.DoesNotExist("Bot does not exist")
 
         return instance

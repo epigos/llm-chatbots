@@ -1,13 +1,18 @@
 import typing
 
 from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
+from jwt import InvalidTokenError
 from langchain_core.embeddings import embeddings
 from langchain_openai import OpenAIEmbeddings
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app import db, ports
+from app import db, exceptions, models, ports
 from app.adapters import agents, aws, qdrant, sqlalchemy
 from app.config import settings
+from app.helpers import auth
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/")
 
 
 async def get_db_session() -> typing.AsyncIterator[AsyncSession]:
@@ -25,6 +30,50 @@ async def get_bot_repo(session: DBSession) -> ports.BotRepository:
 
 
 BotRepository = typing.Annotated[ports.BotRepository, Depends(get_bot_repo)]
+
+
+async def get_user_repo(session: DBSession) -> ports.UserRepository:
+    """dependency to create new user repository"""
+    return sqlalchemy.UserRepository(session)
+
+
+UserRepository = typing.Annotated[ports.UserRepository, Depends(get_user_repo)]
+
+
+def get_token(token: typing.Annotated[str, Depends(oauth2_scheme)]) -> str:
+    """
+    Dependency to retrive token from request, decode it
+    and return the username attached to the token
+    """
+    error_msg = "Could not validate credentials"
+    try:
+        payload = auth.decode_access_token(token)
+        username = payload.get("sub")
+        if username is None:
+            raise exceptions.AuthenticationError(error_msg)
+
+        return str(username)
+    except InvalidTokenError as exc:
+        raise exceptions.AuthenticationError(error_msg) from exc
+
+
+TokenUsername = typing.Annotated[str, Depends(get_token)]
+
+
+async def get_current_user(
+    token_username: TokenUsername, user_repo: UserRepository
+) -> models.User:
+    """
+    Dependency to retrieve current user from database for a given token username
+    """
+    try:
+        user = await user_repo.get_by_username(token_username)
+        return user
+    except exceptions.DoesNotExist as exc:
+        raise exceptions.AuthenticationError("Invalid user credentials") from exc
+
+
+CurrentUser = typing.Annotated[models.User, Depends(get_current_user)]
 
 
 async def get_bot_agent_repo() -> ports.BotAgentRepository:

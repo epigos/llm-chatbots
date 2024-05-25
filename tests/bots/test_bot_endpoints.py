@@ -17,7 +17,7 @@ base_path = "/bots"
 
 
 async def test_create_bot_validation_errors(
-    client: AsyncClient, db_session: AsyncSession
+    client: AsyncClient, db_session: AsyncSession, auth_token
 ) -> None:
     response = await client.post(f"{base_path}/", json={})
 
@@ -28,7 +28,9 @@ async def test_create_bot_validation_errors(
     assert data["detail"][0]["msg"] == "Field required"
 
 
-async def test_can_create_bot(client: AsyncClient, db_session: AsyncSession) -> None:
+async def test_can_create_bot(
+    client: AsyncClient, db_session: AsyncSession, auth_token
+) -> None:
     create_data = {
         "name": "test",
         "welcome_message": "test message",
@@ -49,8 +51,7 @@ async def test_can_create_bot(client: AsyncClient, db_session: AsyncSession) -> 
 
 
 async def test_should_not_create_bot_with_existing_name(
-    client: AsyncClient,
-    bot_db: models.Bot,
+    client: AsyncClient, bot_db: models.Bot, auth_token
 ) -> None:
     response = await client.post(f"{base_path}/", json={"name": bot_db.name})
 
@@ -61,7 +62,7 @@ async def test_should_not_create_bot_with_existing_name(
 
 
 async def test_can_lists_bot(
-    client: AsyncClient, db_session: AsyncSession, bot_factory
+    client: AsyncClient, db_session: AsyncSession, bot_factory, auth_token
 ) -> None:
     repo = sqlalchemy.BotRepository(db_session)
     bots = bot_factory.create_batch(10)
@@ -76,10 +77,7 @@ async def test_can_lists_bot(
     assert len(data) == len(bots)
 
 
-async def test_can_get_bot(
-    client: AsyncClient,
-    bot_db: models.Bot,
-) -> None:
+async def test_can_get_bot(client: AsyncClient, bot_db: models.Bot, auth_token) -> None:
     # test not found
     response = await client.get(f"{base_path}/{uuid.uuid4()}/")
 
@@ -98,6 +96,7 @@ async def test_can_get_bot(
 async def test_can_chat_with_bot(
     client: AsyncClient,
     bot_db: models.Bot,
+    auth_token,
     message: str,
     expected: str,
 ) -> None:
@@ -125,6 +124,7 @@ async def test_can_chat_with_bot(
 
 async def test_can_create_bot_documents(
     client: AsyncClient,
+    auth_token,
     bot_db: models.Bot,
     bot_document_factory: factories.BotDocumentFactory,
 ) -> None:
@@ -159,6 +159,7 @@ async def test_can_create_bot_documents(
 
 async def test_can_index_bot(
     client: AsyncClient,
+    auth_token,
     bot_db: models.Bot,
 ) -> None:
     vector_store = mock.MagicMock(spec=ports.VectorStore)

@@ -1,7 +1,7 @@
 import pytest
-from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app import exceptions
 from app.adapters import sqlalchemy
 
 
@@ -24,9 +24,8 @@ async def test_bot_crud(db_session: AsyncSession, bot) -> None:
 
     await repo.delete(updated_bot)
 
-    with pytest.raises(HTTPException) as excinfo:
+    with pytest.raises(exceptions.DoesNotExist, match="Bot does not exist") as excinfo:
         await repo.get_by_id(bot.id)
-        assert excinfo.value.status_code == 404
 
 
 @pytest.mark.asyncio

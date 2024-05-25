@@ -18,6 +18,12 @@ class Settings(BaseSettings):
     log_level: str = "DEBUG"
     log_format: typing.Literal["json", "console", "colored"] = "colored"
 
+    jwt_secret_key: str = "change jwt secret key"
+    jwt_refresh_secret_key: str = "change jwt refresh secret key"
+    jwt_algorithm: str = "HS256"
+    access_token_expires: int = 15  # minutes
+    refresh_token_expires: int = 60 * 24 * 7  # 7 days
+
     db_driver: str = "postgresql+asyncpg"
     db_host: str = "localhost"
     db_port: int = 5432
@@ -44,6 +50,9 @@ class Settings(BaseSettings):
     aws_secret_access_key: str | None = None
     aws_endpoint_url: str | None = None
     s3_uploads_bucket_name: str = "uploads"
+    # test user
+    test_username: str = "test@example.org"
+    test_user_password: str = "password"
 
     @property
     def database_url(self) -> URL:
