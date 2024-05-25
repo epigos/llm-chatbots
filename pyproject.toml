@@ -88,9 +88,6 @@ filterwarnings = [
     "ignore::DeprecationWarning"
 ]
 
-[tool.poetry.scripts]
-test = "pytest"
-
 [tool.mypy]
 strict = true
 exclude = ["tests", "dist", "migrations"]
