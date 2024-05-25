@@ -35,9 +35,9 @@ make build
 make start
 ```
 
-View the UI at http://localhost:3000
-
 Access the API at http://localhost:8000
+
+![API Screenshot](assets/swagger-api.jpg)
 
 ## Contributing
 
